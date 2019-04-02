@@ -2,6 +2,11 @@ import numpy as np
 import cv2
 import bkgdDelete as bkd
 
+
+#import argparse
+#import glob
+
+
 imgfile = 'alphabet.jpg'
 
 def main():
@@ -9,12 +14,23 @@ def main():
     ## find some contours
 
     im = bkd.imageCrop(imgfile, 20)
-#    showOutput(im)
     
+    kernel = np.ones((5,5),np.float32)/25
+    #dst = cv2.filter2D(im,-1,kernel)
+    dst = cv2.GaussianBlur(im,(5,5),0)
+    cv2.imshow('blurred',dst)
+    edged = cv2.Canny(dst,112,255)
 
-    ret, thresh = cv2.threshold(im, 127, 255, 0)
-#    showOutput(thresh)
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+#    img = auto_canny(im)
+#    showOutput(img)
+    cv2.imshow('canny',edged)
+    ret, thresh = cv2.threshold(im, 112, 255, 0)
+#    cv2.imshow('thresholded',thresh)
+
+
+# adjust to see if I can find better matches
+
+    contours, hierarchy = cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     ## remake img to color
 
@@ -27,7 +43,8 @@ def main():
         if w<5 or h <10:
         #remake countours list to remove small ones
             continue
-
+        if w>im.shape[1]/3 or h>im.shape[0]/3:
+            continue
 
         cv2.rectangle(img,(x,y),(x+w,y+h),(0,120,120),2)
 
@@ -36,14 +53,33 @@ def main():
 
     ## find some matches
     prevCnt = cnt[0]
-    for cnt in contours[420:540]:
-        ret = cv2.matchShapes(prevCnt,cnt,1,0.0)
-        if ret < .002:
-            print('match',str(cnt))
-            cv2.drawContours(img, cnt, -2, (255,255,0), 3)
-        else:
-            print('nope,nope,nope')
+    for c1 in contours:
+        for c2 in contours:
+            ret = cv2.matchShapes(c1,c2,1,0.0)
+            if ret < .01:
+                print('match',ret)
+                cv2.drawContours(img, cnt, -2, (255,255,0), 3)
+#        else:
+            #print('nope,nope,nope')
     showOutput(img)
+
+
+def auto_canny(image, sigma=0.33):
+    '''determins upper and lower image thresholds
+        from https://www.pyimagesearch.com/2015/04/06/zero-parameter-automatic-canny-edge-detection-with-python-and-opencv/
+    '''
+        
+    # compute the median of the single channel pixel intensities
+    v = np.median(image)
+
+    # apply automatic Canny edge detection using the computed median
+    lower = int(max(0, (1.0 - sigma) * v))
+    upper = int(min(255, (1.0 + sigma) * v))
+    edged = cv2.Canny(image, lower, upper)
+
+    # return the edged image
+    return edged
+
 
 def makeVectors():
     '''utilize a mix of find outermost points and offset from contours 
