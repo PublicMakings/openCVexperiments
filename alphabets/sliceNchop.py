@@ -1,4 +1,3 @@
-[0]
 import numpy as np
 import cv2
 import bkgdDelete as bkd
@@ -26,22 +25,35 @@ def main():
     for cnt in contours:
         x,y,w,h = cv2.boundingRect(cnt)
         if w<5 or h <10:
+        #remake countours list to remove small ones
             continue
+
+
         cv2.rectangle(img,(x,y),(x+w,y+h),(0,120,120),2)
 
     showOutput(img)
 
 
     ## find some matches
-    
-'''    for cnt in contours:
-        
-    #### Syntax cv2.matchShapes(InputArray 1, InputArray 2, 
-    ####                       int method, double parameter)
-    ret = cv2.matchShapes(contours1, contours2, 1, 0.0)
-'''
+    prevCnt = cnt[0]
+    for cnt in contours[420:540]:
+        ret = cv2.matchShapes(prevCnt,cnt,1,0.0)
+        if ret < .002:
+            print('match',str(cnt))
+            cv2.drawContours(img, cnt, -2, (255,255,0), 3)
+        else:
+            print('nope,nope,nope')
+    showOutput(img)
 
-    #cv2.drawContours(imgraySM, contours, -2, (255,255,0), 3)
+def makeVectors():
+    '''utilize a mix of find outermost points and offset from contours 
+       to create vectors of handwriting'''
+    pass
+    
+
+def OCR():
+    '''train ocr from continually adding handwriting'''
+    pass
 
 
 def showOutput(image):
