@@ -2,12 +2,12 @@ import cv2
 import numpy as np
 
 
-def imageCrop(file,scale):
+def imageCrop(fileName,scale):
     '''reads in a file and returns
 
         scaled down and cropped image
     '''
-    im = cv2.imread(file)
+    im = cv2.imread(fileName)
     
     scale_percent = scale
     width = int(im.shape[1] * scale_percent/100)
@@ -36,9 +36,9 @@ def imageCrop(file,scale):
     cropped = img[y:y+h,x:x+w]
     
     #cv2.imshow('a title',img)
-    #cv2.imshow('cropped',cropped)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
+#    cv2.imshow('cropped',cropped)
+#    cv2.waitKey(0)
+#    cv2.destroyAllWindows()
     
     imgray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
 
@@ -47,4 +47,4 @@ def imageCrop(file,scale):
 if __name__ == "__main__":
 
     file = 'alphabet.jpg'    
-    imageCrop(file,20)
+    imageCrop(file,60)
