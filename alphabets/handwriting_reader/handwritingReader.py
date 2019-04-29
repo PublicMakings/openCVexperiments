@@ -61,14 +61,21 @@ def interpretNsort(iMage):
     '''data is a filename?'''
     img = cv2.imread(iMage)
     colimg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    cv2.imshow("letter",colimg)
+    ret, thresh = cv2.threshold(colimg,111,255,0)
+    blurred = cv2.GaussianBlur(thresh,(5,5),0)
+    ret, blurred = cv2.threshold(blurred, 0,255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    cv2.imshow("letter",blurred)
+    
 
+
+    imgArray = np.array(thresh)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
     pp = cnn.img_prep(fn="dataset.txt")
     ocr = cnn.LiteOCR(fn="alpha_weights.pkl")
-    char_prediction= ocr.predict(pp.preprocess(iMage))
+    # what if I pass in a binary image?
+    char_prediction= ocr.predict(pp.preprocess(blurred))
 
     print(char_prediction)
 

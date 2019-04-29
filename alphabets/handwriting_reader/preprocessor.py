@@ -4,6 +4,7 @@ import os.path
 import base64
 from PIL import Image
 import sys
+import cv2
 
 class Preprocessor:
 	def __init__(self, fn="dataset.txt"):
@@ -77,14 +78,19 @@ class Preprocessor:
 #		g.write(data)
 #		g.close()
 
-		pic = Image.open(jpgtxt)
+###		pic = Image.open(jpgtxt)
 #		pic = Image.open("temp.jpg")
-		M = np.array(pic) #now we have image data in numpy
+###		M = np.array(pic) #now we have image data in numpy
+
 
 #		M = self.rgb2gray(M)
-		M = self.squareTrim(M,threshold=0)
+		M = self.squareTrim(jpgtxt,threshold=0)
 		M = self.naiveInterp2D(M,self.target_shape[0],self.target_shape[0])
-		[N, mean, sigma] = self.normalize(M)
+		cv2.imshow("whateves",M)
+		cv2.waitKey(0)
+		cv2.destroyAllWindows()
+
+		[N, mean, sigma] = self.normalize(jpgtxt)
 		n = N.reshape(-1)
 		if np.isnan(np.sum(n)):
 			n = np.zeros(n.shape)
